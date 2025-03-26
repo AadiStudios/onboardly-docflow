@@ -6,9 +6,11 @@ import { toast } from 'sonner';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import DocumentValidation from '@/components/onboarding/DocumentValidation';
+import DocumentValidationMenu from '@/components/onboarding/DocumentValidationMenu';
 
 const DocumentValidationPage = () => {
   const navigate = useNavigate();
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const handleCompletionSuccess = () => {
     toast.success('Document validation completed successfully!', {
@@ -19,6 +21,13 @@ const DocumentValidationPage = () => {
     setTimeout(() => {
       navigate('/dashboard');
     }, 1500);
+  };
+  
+  const handleRefresh = () => {
+    setRefreshKey(prevKey => prevKey + 1);
+    toast.info('Refreshing document list...', {
+      duration: 2000,
+    });
   };
   
   return (
@@ -34,9 +43,14 @@ const DocumentValidationPage = () => {
             </p>
           </div>
           
+          <DocumentValidationMenu onRefresh={handleRefresh} />
+          
           <Card className="border border-border/50 shadow-soft animate-fade-in">
             <div className="p-6 md:p-8">
-              <DocumentValidation onComplete={handleCompletionSuccess} />
+              <DocumentValidation 
+                key={refreshKey}
+                onComplete={handleCompletionSuccess} 
+              />
             </div>
           </Card>
         </div>
