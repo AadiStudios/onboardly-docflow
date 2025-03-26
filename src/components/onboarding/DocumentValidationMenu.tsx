@@ -5,7 +5,8 @@ import {
   FileCheck,
   FileText, 
   ClipboardCheck, 
-  File
+  File,
+  Users
 } from 'lucide-react';
 import {
   NavigationMenu,
@@ -18,9 +19,10 @@ import { Button } from '@/components/ui/button';
 
 interface DocumentValidationMenuProps {
   onRefresh?: () => void;
+  currentPage?: 'document-validation' | 'employee-records';
 }
 
-const DocumentValidationMenu = ({ onRefresh }: DocumentValidationMenuProps) => {
+const DocumentValidationMenu = ({ onRefresh, currentPage }: DocumentValidationMenuProps) => {
   const navigate = useNavigate();
 
   const handleRefresh = () => {
@@ -34,7 +36,7 @@ const DocumentValidationMenu = ({ onRefresh }: DocumentValidationMenuProps) => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="bg-primary text-white hover:bg-primary/90">
+            <NavigationMenuTrigger className={`${currentPage === 'document-validation' ? 'bg-primary text-white hover:bg-primary/90' : ''}`}>
               <FileText className="w-4 h-4 mr-2" />
               Document Actions
             </NavigationMenuTrigger>
@@ -43,10 +45,18 @@ const DocumentValidationMenu = ({ onRefresh }: DocumentValidationMenuProps) => {
                 <Button 
                   variant="ghost" 
                   className="flex items-center justify-start"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate('/document-validation')}
                 >
                   <FileCheck className="w-4 h-4 mr-2" />
-                  View All Documents
+                  Document Validation
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center justify-start"
+                  onClick={() => navigate('/employee-records')}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Employee Records
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -54,7 +64,7 @@ const DocumentValidationMenu = ({ onRefresh }: DocumentValidationMenuProps) => {
                   onClick={handleRefresh}
                 >
                   <File className="w-4 h-4 mr-2" />
-                  Refresh Document List
+                  Refresh List
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -63,6 +73,33 @@ const DocumentValidationMenu = ({ onRefresh }: DocumentValidationMenuProps) => {
                 >
                   <ClipboardCheck className="w-4 h-4 mr-2" />
                   Go to Onboarding
+                </Button>
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+          
+          <NavigationMenuItem>
+            <NavigationMenuTrigger className={`${currentPage === 'employee-records' ? 'bg-primary text-white hover:bg-primary/90' : ''}`}>
+              <Users className="w-4 h-4 mr-2" />
+              Employee Records
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid w-[400px] gap-3 p-4">
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center justify-start"
+                  onClick={() => navigate('/employee-records')}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  View All Records
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="flex items-center justify-start"
+                  onClick={() => navigate('/dashboard')}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Dashboard Overview
                 </Button>
               </div>
             </NavigationMenuContent>
