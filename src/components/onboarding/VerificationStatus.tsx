@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Badge from '@/components/common/Badge';
 import { CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface VerificationStatusProps {
   onComplete: () => void;
@@ -11,6 +12,7 @@ interface VerificationStatusProps {
 const VerificationStatus = ({ onComplete }: VerificationStatusProps) => {
   const [docsVerified, setDocsVerified] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const navigate = useNavigate();
   
   const documents = [
     { id: '1', name: 'Aadhaar Card', status: 'verified' },
@@ -65,6 +67,10 @@ const VerificationStatus = ({ onComplete }: VerificationStatusProps) => {
     } else {
       return <Badge variant="default">Pending</Badge>;
     }
+  };
+
+  const handleProceedToValidation = () => {
+    navigate('/document-validation');
   };
   
   return (
@@ -126,13 +132,22 @@ const VerificationStatus = ({ onComplete }: VerificationStatusProps) => {
           <div>
             <h3 className="font-medium text-green-800">Verification Complete</h3>
             <p className="text-sm text-green-700">
-              All documents have been successfully verified. You can now proceed with the next steps.
+              All documents have been successfully verified. You can now proceed with document validation.
             </p>
           </div>
         </div>
       )}
       
-      <div className="pt-4 flex justify-end">
+      <div className="pt-4 flex justify-end space-x-3">
+        {isCompleted && (
+          <Button 
+            onClick={handleProceedToValidation} 
+            variant="default"
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Proceed to Validation
+          </Button>
+        )}
         <Button 
           onClick={onComplete} 
           className="bg-primary hover:bg-primary/90"
