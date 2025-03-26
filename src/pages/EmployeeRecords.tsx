@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import Navbar from '@/components/layout/Navbar';
@@ -9,7 +8,6 @@ import DocumentValidationMenu from '@/components/onboarding/DocumentValidationMe
 import EmployeeRecordsList from '@/components/onboarding/EmployeeRecordsList';
 
 const EmployeeRecordsPage = () => {
-  const navigate = useNavigate();
   const [refreshKey, setRefreshKey] = useState(0);
   
   const handleRefresh = () => {

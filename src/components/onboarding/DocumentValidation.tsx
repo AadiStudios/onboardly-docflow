@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { AlertTriangle, CheckCircle, FileText, X } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, X, Eye, Download } from 'lucide-react';
 import Badge from '@/components/common/Badge';
 import { toast } from 'sonner';
 import {
@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import AnimatedCard from '@/components/common/AnimatedCard';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface Document {
   id: string;
@@ -31,6 +32,10 @@ interface Document {
   status: 'pending' | 'approved' | 'rejected';
   uploaded: boolean;
   comment?: string;
+  employeeName?: string;
+  uploadDate?: string;
+  fileType?: string;
+  fileUrl?: string;
 }
 
 interface DocumentValidationProps {
@@ -39,25 +44,80 @@ interface DocumentValidationProps {
 
 const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
   const [documents, setDocuments] = useState<Document[]>([
-    { id: '1', name: 'Aadhaar Card', status: 'pending', uploaded: true },
-    { id: '2', name: 'PAN Card', status: 'pending', uploaded: true },
-    { id: '3', name: 'Educational Certificates', status: 'pending', uploaded: true },
-    { id: '4', name: 'Previous Employment Certificate', status: 'pending', uploaded: true },
-    { id: '5', name: 'Bank Account Details', status: 'pending', uploaded: true },
+    { 
+      id: '1', 
+      name: 'Aadhaar Card', 
+      status: 'pending', 
+      uploaded: true,
+      employeeName: 'Rahul Sharma',
+      uploadDate: '2023-10-15',
+      fileType: 'PDF',
+      fileUrl: '/placeholder.svg' 
+    },
+    { 
+      id: '2', 
+      name: 'PAN Card', 
+      status: 'pending', 
+      uploaded: true,
+      employeeName: 'Priya Patel',
+      uploadDate: '2023-10-14',
+      fileType: 'JPG',
+      fileUrl: '/placeholder.svg'
+    },
+    { 
+      id: '3', 
+      name: 'Educational Certificates', 
+      status: 'pending', 
+      uploaded: true,
+      employeeName: 'Amit Singh',
+      uploadDate: '2023-10-13',
+      fileType: 'PDF',
+      fileUrl: '/placeholder.svg'
+    },
+    { 
+      id: '4', 
+      name: 'Previous Employment Certificate', 
+      status: 'pending', 
+      uploaded: true,
+      employeeName: 'Sneha Gupta',
+      uploadDate: '2023-10-12',
+      fileType: 'PDF',
+      fileUrl: '/placeholder.svg'
+    },
+    { 
+      id: '5', 
+      name: 'Bank Account Details', 
+      status: 'pending', 
+      uploaded: true,
+      employeeName: 'Vikram Reddy',
+      uploadDate: '2023-10-11',
+      fileType: 'PDF',
+      fileUrl: '/placeholder.svg'
+    },
   ]);
   
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [comment, setComment] = useState('');
   const [allChecked, setAllChecked] = useState(false);
+  const [editedDocumentData, setEditedDocumentData] = useState<Partial<Document>>({});
   
   const handleDocumentView = (doc: Document) => {
     setSelectedDocument(doc);
+    setEditedDocumentData({
+      name: doc.name,
+      employeeName: doc.employeeName,
+      uploadDate: doc.uploadDate,
+      fileType: doc.fileType,
+      comment: doc.comment
+    });
   };
   
   const closeDocumentView = () => {
     setSelectedDocument(null);
+    setEditedDocumentData({});
   };
   
   const openRejectDialog = (doc: Document) => {
@@ -77,6 +137,15 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
   
   const closeApproveDialog = () => {
     setApproveDialogOpen(false);
+  };
+
+  const openPreviewDialog = (doc: Document) => {
+    setSelectedDocument(doc);
+    setPreviewDialogOpen(true);
+  };
+
+  const closePreviewDialog = () => {
+    setPreviewDialogOpen(false);
   };
   
   const handleRejectDocument = () => {
@@ -114,6 +183,24 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
       
       closeApproveDialog();
       setSelectedDocument(null);
+    }
+  };
+
+  const handleSaveEdits = () => {
+    if (selectedDocument && Object.keys(editedDocumentData).length > 0) {
+      setDocuments(prevDocs =>
+        prevDocs.map(doc =>
+          doc.id === selectedDocument.id 
+            ? { ...doc, ...editedDocumentData } 
+            : doc
+        )
+      );
+      
+      toast.success(`Document ${selectedDocument.name} updated`, {
+        description: 'Document information has been updated',
+      });
+      
+      closeDocumentView();
     }
   };
   
@@ -209,10 +296,23 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
                   <h3 className="font-medium">{doc.name}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     {getStatusBadge(doc.status)}
+                    <span className="text-xs text-muted-foreground">
+                      {doc.employeeName} • {doc.uploadDate}
+                    </span>
                     {doc.comment && (
-                      <span className="text-xs text-muted-foreground">
-                        {doc.comment.length > 30 ? `${doc.comment.substring(0, 30)}...` : doc.comment}
-                      </span>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-6 px-2 rounded-full">
+                            <span className="text-xs">Comment</span>
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                          <div className="space-y-2">
+                            <h4 className="font-medium">Comment</h4>
+                            <p className="text-sm text-muted-foreground">{doc.comment}</p>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     )}
                   </div>
                 </div>
@@ -224,7 +324,17 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
                   size="sm" 
                   onClick={() => handleDocumentView(doc)}
                 >
-                  View
+                  Edit
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => openPreviewDialog(doc)}
+                  className="flex items-center gap-1"
+                >
+                  <Eye className="w-4 h-4" />
+                  Preview
                 </Button>
                 
                 {doc.status === 'pending' && (
@@ -280,24 +390,121 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
         </Button>
       </div>
       
-      {/* Document View Dialog */}
-      <Dialog open={!!selectedDocument && !rejectDialogOpen && !approveDialogOpen} onOpenChange={closeDocumentView}>
+      {/* Document Edit Dialog */}
+      <Dialog open={!!selectedDocument && !rejectDialogOpen && !approveDialogOpen && !previewDialogOpen} onOpenChange={closeDocumentView}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{selectedDocument?.name}</DialogTitle>
+            <DialogTitle>Edit Document Information</DialogTitle>
             <DialogDescription>
-              Document preview and details
+              Update document details and annotations
             </DialogDescription>
           </DialogHeader>
           
-          <div className="bg-muted/50 rounded-lg p-8 flex items-center justify-center">
-            <FileText className="h-20 w-20 text-muted-foreground" />
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="doc-name">Document Name</label>
+              <input
+                id="doc-name"
+                className="w-full p-2 border border-border rounded-md"
+                value={editedDocumentData.name || ''}
+                onChange={(e) => setEditedDocumentData(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="employee-name">Employee Name</label>
+              <input
+                id="employee-name"
+                className="w-full p-2 border border-border rounded-md"
+                value={editedDocumentData.employeeName || ''}
+                onChange={(e) => setEditedDocumentData(prev => ({ ...prev, employeeName: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="upload-date">Upload Date</label>
+              <input
+                id="upload-date"
+                type="date"
+                className="w-full p-2 border border-border rounded-md"
+                value={editedDocumentData.uploadDate || ''}
+                onChange={(e) => setEditedDocumentData(prev => ({ ...prev, uploadDate: e.target.value }))}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="file-type">File Type</label>
+              <select
+                id="file-type"
+                className="w-full p-2 border border-border rounded-md"
+                value={editedDocumentData.fileType || ''}
+                onChange={(e) => setEditedDocumentData(prev => ({ ...prev, fileType: e.target.value }))}
+              >
+                <option value="PDF">PDF</option>
+                <option value="JPG">JPG</option>
+                <option value="PNG">PNG</option>
+                <option value="DOC">DOC</option>
+              </select>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium" htmlFor="comment">Internal Comment</label>
+              <textarea
+                id="comment"
+                className="w-full p-2 border border-border rounded-md"
+                rows={3}
+                value={editedDocumentData.comment || ''}
+                onChange={(e) => setEditedDocumentData(prev => ({ ...prev, comment: e.target.value }))}
+                placeholder="Add internal notes or comments about this document..."
+              />
+            </div>
           </div>
           
-          <div className="text-sm">
-            <p><span className="font-medium">Status:</span> {selectedDocument?.status}</p>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDocumentView}>Cancel</Button>
+            <Button onClick={handleSaveEdits}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Document Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={closePreviewDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Document Preview</DialogTitle>
+            <DialogDescription>
+              {selectedDocument?.name} submitted by {selectedDocument?.employeeName}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-muted/50 rounded-lg p-8 flex flex-col items-center justify-center h-96 relative">
+            <img 
+              src={selectedDocument?.fileUrl || '/placeholder.svg'} 
+              alt="Document preview" 
+              className="max-h-full object-contain border border-border rounded-md shadow-md"
+            />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Button size="sm" variant="outline">
+                <Download className="h-4 w-4 mr-1" />
+                Download
+              </Button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p><span className="font-medium">Document Type:</span> {selectedDocument?.name}</p>
+              <p><span className="font-medium">Employee:</span> {selectedDocument?.employeeName}</p>
+            </div>
+            <div>
+              <p><span className="font-medium">Upload Date:</span> {selectedDocument?.uploadDate}</p>
+              <p><span className="font-medium">File Type:</span> {selectedDocument?.fileType}</p>
+            </div>
             {selectedDocument?.comment && (
-              <p className="mt-2"><span className="font-medium">Comment:</span> {selectedDocument.comment}</p>
+              <div className="col-span-2 mt-2 p-3 bg-muted rounded-md">
+                <p className="font-medium">Comments:</p>
+                <p className="text-muted-foreground">{selectedDocument.comment}</p>
+              </div>
             )}
           </div>
           
@@ -306,7 +513,7 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
               <div className="flex space-x-2 w-full">
                 <Button 
                   variant="outline" 
-                  onClick={closeDocumentView}
+                  onClick={closePreviewDialog}
                   className="flex-1"
                 >
                   Close
@@ -315,7 +522,7 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
                   variant="default" 
                   className="flex-1 bg-green-600 hover:bg-green-700"
                   onClick={() => {
-                    closeDocumentView();
+                    closePreviewDialog();
                     setTimeout(() => openApproveDialog(selectedDocument), 100);
                   }}
                 >
@@ -325,7 +532,7 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
                   variant="destructive" 
                   className="flex-1"
                   onClick={() => {
-                    closeDocumentView();
+                    closePreviewDialog();
                     setTimeout(() => openRejectDialog(selectedDocument), 100);
                   }}
                 >
@@ -334,7 +541,7 @@ const DocumentValidation = ({ onComplete }: DocumentValidationProps) => {
               </div>
             )}
             {selectedDocument?.status !== 'pending' && (
-              <Button onClick={closeDocumentView}>Close</Button>
+              <Button onClick={closePreviewDialog}>Close</Button>
             )}
           </DialogFooter>
         </DialogContent>

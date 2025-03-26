@@ -35,11 +35,11 @@ const DocumentValidationPage = () => {
       <Navbar />
       
       <main className="flex-1 pt-24 pb-12 px-6 bg-subtle-gradient">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Document Validation</h1>
             <p className="text-muted-foreground mt-1">
-              Review and validate employee submitted documents
+              Review, edit and validate employee submitted documents
             </p>
           </div>
           
